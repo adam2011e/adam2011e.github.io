@@ -99,6 +99,10 @@
     .clock-card {
       --drag-x: 0px;
       --drag-y: 0px;
+      --stretch-x: 1;
+      --stretch-y: 1;
+      --shear-x: 0deg;
+      --shear-y: 0deg;
       --tilt-x: 0deg;
       --tilt-y: 0deg;
       --pointer-x: 50%;
@@ -114,7 +118,7 @@
       backdrop-filter: blur(18px) saturate(115%);
       -webkit-backdrop-filter: blur(18px) saturate(115%);
       text-align: center;
-      transform: translate3d(var(--drag-x), var(--drag-y), 0) perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+      transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) skewX(var(--shear-x)) skewY(var(--shear-y)) scale(var(--stretch-x), var(--stretch-y));
       transform-origin: center;
       touch-action: none;
       user-select: none;

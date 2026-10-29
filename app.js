@@ -14,8 +14,8 @@ const natureScenes = [
 const drag = {
   active: false,
   pointerId: null,
-  grabX: 0,
-  grabY: 0,
+  startX: 0,
+  startY: 0,
   x: 0,
   y: 0,
   targetX: 0,
@@ -48,11 +48,17 @@ function renderDrag() {
   const smoothing = drag.active ? 0.2 : 0.12;
   drag.x += (drag.targetX - drag.x) * smoothing;
   drag.y += (drag.targetY - drag.y) * smoothing;
-  const tiltX = drag.y * -0.18;
-  const tiltY = drag.x * 0.18;
+  const horizontalStretch = 1 + Math.abs(drag.x) * 0.003;
+  const verticalStretch = 1 + Math.abs(drag.y) * 0.003;
+  const tiltX = drag.y * -0.08;
+  const tiltY = drag.x * 0.08;
+  const shearX = drag.x * 0.06;
+  const shearY = drag.y * 0.04;
 
-  clockCard.style.setProperty("--drag-x", `${drag.x.toFixed(2)}px`);
-  clockCard.style.setProperty("--drag-y", `${drag.y.toFixed(2)}px`);
+  clockCard.style.setProperty("--stretch-x", horizontalStretch.toFixed(3));
+  clockCard.style.setProperty("--stretch-y", verticalStretch.toFixed(3));
+  clockCard.style.setProperty("--shear-x", `${shearX.toFixed(2)}deg`);
+  clockCard.style.setProperty("--shear-y", `${shearY.toFixed(2)}deg`);
   clockCard.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
   clockCard.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
 
@@ -61,8 +67,10 @@ function renderDrag() {
   } else {
     drag.x = 0;
     drag.y = 0;
-    clockCard.style.setProperty("--drag-x", "0px");
-    clockCard.style.setProperty("--drag-y", "0px");
+    clockCard.style.setProperty("--stretch-x", "1");
+    clockCard.style.setProperty("--stretch-y", "1");
+    clockCard.style.setProperty("--shear-x", "0deg");
+    clockCard.style.setProperty("--shear-y", "0deg");
     clockCard.style.setProperty("--tilt-x", "0deg");
     clockCard.style.setProperty("--tilt-y", "0deg");
   }
@@ -71,11 +79,11 @@ function renderDrag() {
 clockCard.addEventListener("pointerdown", (event) => {
   drag.active = true;
   drag.pointerId = event.pointerId;
+  drag.startX = event.clientX;
+  drag.startY = event.clientY;
   const bounds = clockCard.getBoundingClientRect();
-  drag.grabX = event.clientX - bounds.left;
-  drag.grabY = event.clientY - bounds.top;
-  clockCard.style.setProperty("--pointer-x", `${drag.grabX}px`);
-  clockCard.style.setProperty("--pointer-y", `${drag.grabY}px`);
+  clockCard.style.setProperty("--pointer-x", `${event.clientX - bounds.left}px`);
+  clockCard.style.setProperty("--pointer-y", `${event.clientY - bounds.top}px`);
   clockCard.classList.add("is-dragging");
   clockCard.setPointerCapture(event.pointerId);
   requestAnimationFrame(renderDrag);
@@ -84,8 +92,8 @@ clockCard.addEventListener("pointerdown", (event) => {
 clockCard.addEventListener("pointermove", (event) => {
   if (!drag.active || event.pointerId !== drag.pointerId) return;
   const bounds = clockCard.getBoundingClientRect();
-  drag.targetX = Math.max(-26, Math.min(26, event.clientX - bounds.left - drag.grabX));
-  drag.targetY = Math.max(-18, Math.min(18, event.clientY - bounds.top - drag.grabY));
+  drag.targetX = Math.max(-40, Math.min(40, event.clientX - drag.startX));
+  drag.targetY = Math.max(-28, Math.min(28, event.clientY - drag.startY));
   clockCard.style.setProperty("--pointer-x", `${event.clientX - bounds.left}px`);
   clockCard.style.setProperty("--pointer-y", `${event.clientY - bounds.top}px`);
 });
