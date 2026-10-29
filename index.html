@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101813">
   <meta name="description" content="A quiet local-time clock surrounded by nature.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'none';">
   <title>Stillpoint | Local time</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,7 +97,15 @@
     }
 
     .clock-card {
+      --drag-x: 0px;
+      --drag-y: 0px;
+      --tilt-x: 0deg;
+      --tilt-y: 0deg;
+      --pointer-x: 50%;
+      --pointer-y: 50%;
+      position: relative;
       width: min(680px, calc(100vw - 40px));
+      overflow: hidden;
       padding: clamp(34px, 7vw, 72px) clamp(24px, 7vw, 78px) clamp(30px, 5vw, 52px);
       border: 1px solid var(--line);
       border-radius: 24px;
@@ -104,7 +114,34 @@
       backdrop-filter: blur(18px) saturate(115%);
       -webkit-backdrop-filter: blur(18px) saturate(115%);
       text-align: center;
+      transform: translate3d(var(--drag-x), var(--drag-y), 0) perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+      transform-origin: center;
+      touch-action: none;
+      user-select: none;
       animation: rise-in 900ms cubic-bezier(.2,.8,.2,1) both;
+      will-change: transform;
+    }
+
+    .clock-card::after {
+      position: absolute;
+      inset: -35%;
+      z-index: 0;
+      content: "";
+      pointer-events: none;
+      background: radial-gradient(circle at var(--pointer-x) var(--pointer-y), rgba(211, 239, 177, 0.2), transparent 28%);
+      opacity: 0;
+      transform: scale(0.7);
+      transition: opacity 240ms ease, transform 500ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    .clock-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .clock-card.is-dragging::after {
+      opacity: 1;
+      transform: scale(1);
     }
 
     .eyebrow {
@@ -134,30 +171,6 @@
       letter-spacing: 0.06em;
     }
 
-    .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      margin-top: 40px;
-      padding: 9px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
-      background: var(--glass-strong);
-      color: var(--muted);
-      font-size: 0.66rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .status::before {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-      content: "";
-    }
-
     .footer {
       position: absolute;
       bottom: clamp(24px, 5vw, 52px);
@@ -184,7 +197,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .clock-card { animation: none; }
+      .clock-card { animation: none; transform: none; }
+      .clock-card::after { display: none; }
       .scene { transition: none; }
     }
   </style>
@@ -200,7 +214,6 @@
       <p class="eyebrow">Your local time</p>
       <time class="time" id="time" aria-live="off">00:00:00</time>
       <p class="date" id="date">Loading date...</p>
-      <div class="status">Live clock</div>
     </section>
 
     <footer class="footer">
@@ -209,44 +222,6 @@
     </footer>
   </main>
 
-  <script>
-    const scene = document.querySelector("#scene");
-    const time = document.querySelector("#time");
-    const date = document.querySelector("#date");
-    const timezone = document.querySelector("#timezone");
-    const natureScenes = [
-      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=2400&q=85",
-      "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2400&q=85",
-      "https://images.unsplash.com/photo-1473445361085-b9a07f55608b?auto=format&fit=crop&w=2400&q=85",
-      "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=2400&q=85",
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2400&q=85"
-    ];
-
-    function setNatureBackground() {
-      const selectedScene = natureScenes[Math.floor(Math.random() * natureScenes.length)];
-      scene.style.backgroundImage = `url("${selectedScene}")`;
-    }
-
-    function updateClock() {
-      const now = new Date();
-      time.textContent = now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-      });
-      date.textContent = now.toLocaleDateString([], {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric"
-      });
-      timezone.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone.replace("_", " ");
-    }
-
-    setNatureBackground();
-    updateClock();
-    setInterval(updateClock, 1000);
-  </script>
+  <script src="app.js" defer></script>
 </body>
 </html>
