@@ -1,1 +1,4 @@
-autron.me
+TXT resend._domainkey p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPcOmR+1Teo/Rr5wVQVkmcTELyeVDPQkdlKcsM1C56Lo5cRrGJLPq/ZMntNf7+VUKp8uTNThoHcHWj1XZbw2pEU6cD4qMCuAAHC7NEUuuSEs3YQCDt1ekn9iqhNUMfUkruXV6v4uc/g0ferZLxeb1U9dTiE/txFicsqpjyQ47iEwIDAQAB
+CNAME rsend rsend-euw1.forge.rmta.net
+CNAME send send.forge.rmta.net
+TXT _dmarc v=DMARC1; p=none;
